@@ -8,13 +8,10 @@ import (
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
-	"github.com/steipete/gogcli/internal/googleapi"
 	"github.com/steipete/gogcli/internal/outfmt"
 	"github.com/steipete/gogcli/internal/ui"
 	"google.golang.org/api/gmail/v1"
 )
-
-var newGmailService = googleapi.NewGmail
 
 func newGmailLabelsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{

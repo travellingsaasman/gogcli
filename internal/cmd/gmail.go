@@ -15,6 +15,8 @@ import (
 	"google.golang.org/api/gmail/v1"
 )
 
+var newGmailService = googleapi.NewGmail
+
 func newGmailCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gmail",
@@ -45,7 +47,7 @@ func newGmailSearchCmd(flags *rootFlags) *cobra.Command {
 			}
 			query := strings.Join(args, " ")
 
-			svc, err := googleapi.NewGmail(cmd.Context(), account)
+			svc, err := newGmailService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}

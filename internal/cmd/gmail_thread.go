@@ -11,7 +11,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/steipete/gogcli/internal/config"
-	"github.com/steipete/gogcli/internal/googleapi"
 	"github.com/steipete/gogcli/internal/outfmt"
 	"github.com/steipete/gogcli/internal/ui"
 	"google.golang.org/api/gmail/v1"
@@ -32,7 +31,7 @@ func newGmailThreadCmd(flags *rootFlags) *cobra.Command {
 			}
 			threadID := args[0]
 
-			svc, err := googleapi.NewGmail(cmd.Context(), account)
+			svc, err := newGmailService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}

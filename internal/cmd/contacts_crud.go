@@ -8,7 +8,6 @@ import (
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
-	"github.com/steipete/gogcli/internal/googleapi"
 	"github.com/steipete/gogcli/internal/outfmt"
 	"github.com/steipete/gogcli/internal/ui"
 	"google.golang.org/api/people/v1"
@@ -31,7 +30,7 @@ func newContactsListCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			svc, err := googleapi.NewPeopleContacts(cmd.Context(), account)
+			svc, err := newPeopleContactsService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}
@@ -116,7 +115,7 @@ func newContactsGetCmd(flags *rootFlags) *cobra.Command {
 				return errors.New("empty identifier")
 			}
 
-			svc, err := googleapi.NewPeopleContacts(cmd.Context(), account)
+			svc, err := newPeopleContactsService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}
@@ -195,7 +194,7 @@ func newContactsCreateCmd(flags *rootFlags) *cobra.Command {
 				return errors.New("required: --given")
 			}
 
-			svc, err := googleapi.NewPeopleContacts(cmd.Context(), account)
+			svc, err := newPeopleContactsService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}
@@ -253,7 +252,7 @@ func newContactsUpdateCmd(flags *rootFlags) *cobra.Command {
 				return errors.New("resourceName must start with people/")
 			}
 
-			svc, err := googleapi.NewPeopleContacts(cmd.Context(), account)
+			svc, err := newPeopleContactsService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}
@@ -340,7 +339,7 @@ func newContactsDeleteCmd(flags *rootFlags) *cobra.Command {
 				return errors.New("resourceName must start with people/")
 			}
 
-			svc, err := googleapi.NewPeopleContacts(cmd.Context(), account)
+			svc, err := newPeopleContactsService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}

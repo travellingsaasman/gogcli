@@ -7,7 +7,6 @@ import (
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
-	"github.com/steipete/gogcli/internal/googleapi"
 	"github.com/steipete/gogcli/internal/outfmt"
 	"github.com/steipete/gogcli/internal/ui"
 	"google.golang.org/api/people/v1"
@@ -44,7 +43,7 @@ func newContactsSearchCmd(flags *rootFlags) *cobra.Command {
 			}
 			query := strings.Join(args, " ")
 
-			svc, err := googleapi.NewPeopleContacts(cmd.Context(), account)
+			svc, err := newPeopleContactsService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}

@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/steipete/gogcli/internal/googleapi"
 	"github.com/steipete/gogcli/internal/outfmt"
 	"github.com/steipete/gogcli/internal/ui"
 )
@@ -44,7 +43,7 @@ func newContactsDirectoryListCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			svc, err := googleapi.NewPeopleDirectory(cmd.Context(), account)
+			svc, err := newPeopleDirectoryService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}
@@ -132,7 +131,7 @@ func newContactsDirectorySearchCmd(flags *rootFlags) *cobra.Command {
 			}
 			query := strings.Join(args, " ")
 
-			svc, err := googleapi.NewPeopleDirectory(cmd.Context(), account)
+			svc, err := newPeopleDirectoryService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}
@@ -230,7 +229,7 @@ func newContactsOtherListCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			svc, err := googleapi.NewPeopleOtherContacts(cmd.Context(), account)
+			svc, err := newPeopleOtherContactsService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}
@@ -315,7 +314,7 @@ func newContactsOtherSearchCmd(flags *rootFlags) *cobra.Command {
 			}
 			query := strings.Join(args, " ")
 
-			svc, err := googleapi.NewPeopleOtherContacts(cmd.Context(), account)
+			svc, err := newPeopleOtherContactsService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}

@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/steipete/gogcli/internal/googleapi"
 	"github.com/steipete/gogcli/internal/outfmt"
 	"github.com/steipete/gogcli/internal/ui"
 	"google.golang.org/api/gmail/v1"
@@ -36,7 +35,7 @@ func newGmailSendCmd(flags *rootFlags) *cobra.Command {
 				return errors.New("required: --to, --subject, --body")
 			}
 
-			svc, err := googleapi.NewGmail(cmd.Context(), account)
+			svc, err := newGmailService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}

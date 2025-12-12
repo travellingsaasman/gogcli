@@ -10,7 +10,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/steipete/gogcli/internal/config"
-	"github.com/steipete/gogcli/internal/googleapi"
 	"github.com/steipete/gogcli/internal/outfmt"
 	"github.com/steipete/gogcli/internal/ui"
 	"google.golang.org/api/gmail/v1"
@@ -44,7 +43,7 @@ func newGmailDraftsListCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			svc, err := googleapi.NewGmail(cmd.Context(), account)
+			svc, err := newGmailService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}
@@ -119,7 +118,7 @@ func newGmailDraftsGetCmd(flags *rootFlags) *cobra.Command {
 			}
 			draftID := args[0]
 
-			svc, err := googleapi.NewGmail(cmd.Context(), account)
+			svc, err := newGmailService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}
@@ -231,7 +230,7 @@ func newGmailDraftsDeleteCmd(flags *rootFlags) *cobra.Command {
 			}
 			draftID := args[0]
 
-			svc, err := googleapi.NewGmail(cmd.Context(), account)
+			svc, err := newGmailService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}
@@ -262,7 +261,7 @@ func newGmailDraftsSendCmd(flags *rootFlags) *cobra.Command {
 			}
 			draftID := args[0]
 
-			svc, err := googleapi.NewGmail(cmd.Context(), account)
+			svc, err := newGmailService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}
@@ -309,7 +308,7 @@ func newGmailDraftsCreateCmd(flags *rootFlags) *cobra.Command {
 				return errors.New("required: --to, --subject, --body")
 			}
 
-			svc, err := googleapi.NewGmail(cmd.Context(), account)
+			svc, err := newGmailService(cmd.Context(), account)
 			if err != nil {
 				return err
 			}
