@@ -42,3 +42,7 @@ Run smoke tests against real APIs (not in CI):
 If you use `pnpm`, you can build+run in one step:
 
 - `pnpm gog auth add you@gmail.com`
+
+If you want clean stdout for scripting, use pnpm’s silent mode:
+
+- `pnpm -s gog --output=json gmail search "from:me" | jq .`
