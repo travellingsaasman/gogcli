@@ -33,6 +33,7 @@ func newSheetsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newSheetsClearCmd(flags))
 	cmd.AddCommand(newSheetsMetadataCmd(flags))
 	cmd.AddCommand(newSheetsCreateCmd(flags))
+	cmd.AddCommand(newSheetsCopyCmd(flags))
 	cmd.AddCommand(newSheetsExportCmd(flags))
 	return cmd
 }
@@ -46,6 +47,16 @@ func newSheetsExportCmd(flags *rootFlags) *cobra.Command {
 		KindLabel:     "Google Sheet",
 		DefaultFormat: "xlsx",
 		FormatHelp:    "Export format: pdf|xlsx|csv",
+	})
+}
+
+func newSheetsCopyCmd(flags *rootFlags) *cobra.Command {
+	return newCopyViaDriveCmd(flags, copyViaDriveOptions{
+		Use:          "copy <spreadsheetId> <title>",
+		Short:        "Copy a Google Sheet",
+		ArgName:      "spreadsheetId",
+		ExpectedMime: "application/vnd.google-apps.spreadsheet",
+		KindLabel:    "Google Sheet",
 	})
 }
 

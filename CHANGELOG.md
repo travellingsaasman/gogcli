@@ -9,8 +9,12 @@
 - Gmail: `gog gmail thread --download --out-dir ...` for saving thread attachments to a specific directory.
 - Calendar: colors, conflicts, search, multi-timezone time.
 - Sheets: read/write/update/append/clear + create spreadsheets.
+- Sheets: copy spreadsheets via Drive (`gog sheets copy ...`).
 - Drive: `gog drive download --format ...` for Google Docs exports (e.g. Sheets to PDF/XLSX, Docs to PDF/DOCX/TXT, Slides to PDF/PPTX).
+- Drive: copy files (`gog drive copy ...`).
 - Docs/Slides/Sheets: dedicated export commands (`gog docs export`, `gog slides export`, `gog sheets export`).
+- Docs: create/copy (`gog docs create`, `gog docs copy`) and print plain text (`gog docs cat`).
+- Slides: create/copy (`gog slides create`, `gog slides copy`).
 - Auth: browser-based accounts manager (`gog auth manage`).
 - DX: shell completion (`gog completion ...`) and `--verbose` logging.
 

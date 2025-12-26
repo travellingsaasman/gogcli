@@ -30,6 +30,7 @@ func newDriveCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newDriveSearchCmd(flags))
 	cmd.AddCommand(newDriveGetCmd(flags))
 	cmd.AddCommand(newDriveDownloadCmd(flags))
+	cmd.AddCommand(newDriveCopyCmd(flags))
 	cmd.AddCommand(newDriveUploadCmd(flags))
 	cmd.AddCommand(newDriveMkdirCmd(flags))
 	cmd.AddCommand(newDriveDeleteCmd(flags))

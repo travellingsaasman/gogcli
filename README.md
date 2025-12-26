@@ -10,7 +10,7 @@ Google in your terminal - CLI for Gmail, Calendar, Drive, Contacts, Tasks, and S
 - **Contacts** - search/create/update contacts, access Workspace directory
 - **Tasks** - manage tasklists and tasks: create/add/update/done/undo/delete/clear
 - **Sheets** - read/write/update spreadsheets, create new sheets (and export via Drive)
-- **Docs/Slides** - export to PDF/DOCX/PPTX via Drive
+- **Docs/Slides** - export to PDF/DOCX/PPTX via Drive (plus create/copy, docs-to-text)
 - **People** - access profile information
 - **Multiple account support** - manage multiple Google accounts simultaneously
 - **Secure credential storage** using OS keyring (Keychain on macOS, Secret Service on Linux, Credential Manager on Windows)
@@ -175,7 +175,8 @@ gog auth tokens                       # Manage stored refresh tokens
 # Search and read
 gog gmail search 'newer_than:7d' --max 10
 gog gmail thread <threadId>
-gog gmail thread <threadId> --download-attachments  # Download attachments to current dir
+gog gmail thread <threadId> --download              # Download attachments to current dir
+gog gmail thread <threadId> --download --out-dir ./attachments
 gog gmail get <messageId>
 gog gmail get <messageId> --format metadata
 gog gmail attachment <messageId> <attachmentId>
@@ -293,6 +294,7 @@ gog drive ls --parent <folderId> --max 20
 gog drive search "invoice" --max 20
 gog drive get <fileId>                # Get file metadata
 gog drive url <fileId>                # Print Drive web URL
+gog drive copy <fileId> "Copy Name"
 
 # Upload and download
 gog drive upload ./path/to/file --parent <folderId>
@@ -313,6 +315,27 @@ gog drive permissions <fileId>
 gog drive share <fileId> --email user@example.com --role reader
 gog drive share <fileId> --email user@example.com --role writer
 gog drive unshare <fileId> --permission-id <permissionId>
+```
+
+### Docs / Slides / Sheets
+
+```bash
+# Docs
+gog docs info <docId>
+gog docs cat <docId> --max-bytes 10000
+gog docs create "My Doc"
+gog docs copy <docId> "My Doc Copy"
+gog docs export <docId> --format pdf --out ./doc.pdf
+
+# Slides
+gog slides info <presentationId>
+gog slides create "My Deck"
+gog slides copy <presentationId> "My Deck Copy"
+gog slides export <presentationId> --format pdf --out ./deck.pdf
+
+# Sheets
+gog sheets copy <spreadsheetId> "My Sheet Copy"
+gog sheets export <spreadsheetId> --format pdf --out ./sheet.pdf
 ```
 
 ### Contacts
