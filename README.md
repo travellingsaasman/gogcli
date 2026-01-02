@@ -149,6 +149,17 @@ The CLI uses [github.com/99designs/keyring](https://github.com/99designs/keyring
 
 If no OS keychain backend is available (e.g., Linux/WSL/container), keyring can fall back to an encrypted on-disk store and may prompt for a password; for non-interactive runs set `GOG_KEYRING_PASSWORD`.
 
+### Keychain Prompts (macOS)
+
+macOS Keychain may prompt more than you’d expect when the “app identity” keeps changing (different binary path, `go run` temp builds, rebuilding to new `./bin/gog`, multiple copies). Keychain treats those as different apps, so it asks again.
+
+Options:
+
+- **Default (recommended):** keep using Keychain (secure) and run a stable `gog` binary path to reduce repeat prompts.
+- **Force Keychain:** `GOG_KEYRING_BACKEND=keychain` (disables any file-backend fallback).
+- **Avoid Keychain prompts entirely:** `GOG_KEYRING_BACKEND=file` (stores encrypted entries on disk under your config dir).
+  - To avoid password prompts too (CI/non-interactive): set `GOG_KEYRING_PASSWORD=...` (tradeoff: secret in env).
+
 ### Best Practices
 
 - **Never commit OAuth client credentials** to version control
