@@ -41,6 +41,7 @@ type CLI struct {
 	Tasks      TasksCmd      `cmd:"" help:"Google Tasks"`
 	People     PeopleCmd     `cmd:"" help:"Google People"`
 	Sheets     SheetsCmd     `cmd:"" help:"Google Sheets"`
+	Groups     GroupsCmd     `cmd:"" help:"Google Groups (Cloud Identity)"`
 	VersionCmd VersionCmd    `cmd:"" name:"version" help:"Print version"`
 	Completion CompletionCmd `cmd:"" help:"Generate shell completion scripts"`
 }

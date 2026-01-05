@@ -42,7 +42,8 @@ func (c *CalendarSearchCmd) Run(ctx context.Context, flags *RootFlags) error {
 
 	// If convenience flags are used, use timezone-aware resolution
 	if c.Today || c.Week || c.From != "" || c.To != "" {
-		timeRange, err := ResolveTimeRange(ctx, svc, TimeRangeFlags{
+		var timeRange *TimeRange
+		timeRange, err = ResolveTimeRange(ctx, svc, TimeRangeFlags{
 			From:  c.From,
 			To:    c.To,
 			Today: c.Today,
@@ -54,7 +55,8 @@ func (c *CalendarSearchCmd) Run(ctx context.Context, flags *RootFlags) error {
 		from, to = timeRange.FormatRFC3339()
 	} else {
 		// Search-specific defaults: 30 days ago to 90 days from now
-		loc, err := getUserTimezone(ctx, svc)
+		var loc *time.Location
+		loc, err = getUserTimezone(ctx, svc)
 		if err != nil {
 			return err
 		}

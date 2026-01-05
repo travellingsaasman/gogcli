@@ -5,13 +5,14 @@ Google in your terminal - CLI for Gmail, Calendar, Drive, Contacts, Tasks, and S
 ## Features
 
 - **Gmail** - search threads, send emails, manage labels, drafts, filters, delegation, vacation settings, and watch (Pub/Sub push)
-- **Calendar** - list/create/update events, detect conflicts, manage invitations, check free/busy status
+- **Calendar** - list/create/update events, detect conflicts, manage invitations, check free/busy status, team calendars
 - **Drive** - list/search/upload/download files, manage permissions, organize folders
 - **Contacts** - search/create/update contacts, access Workspace directory
 - **Tasks** - manage tasklists and tasks: create/add/update/done/undo/delete/clear
 - **Sheets** - read/write/update spreadsheets, create new sheets (and export via Drive)
 - **Docs/Slides** - export to PDF/DOCX/PPTX via Drive (plus create/copy, docs-to-text)
 - **People** - access profile information
+- **Groups** - list groups you belong to, view group members (Google Workspace)
 - **Multiple account support** - manage multiple Google accounts simultaneously
 - **Secure credential storage** using OS keyring (Keychain on macOS, Secret Service on Linux, Credential Manager on Windows)
 - **Auto-refreshing tokens** - authenticate once, use indefinitely
@@ -53,6 +54,7 @@ Before adding an account, create OAuth2 credentials from Google Cloud Console:
    - People API (Contacts): https://console.cloud.google.com/apis/api/people.googleapis.com
    - Google Tasks API: https://console.cloud.google.com/apis/api/tasks.googleapis.com
    - Google Sheets API: https://console.cloud.google.com/apis/api/sheets.googleapis.com
+   - Cloud Identity API (Groups): https://console.cloud.google.com/apis/api/cloudidentity.googleapis.com
 3. Configure OAuth consent screen: https://console.cloud.google.com/auth/branding
 4. If your app is in "Testing", add test users: https://console.cloud.google.com/auth/audience
 5. Create OAuth client:
@@ -273,12 +275,25 @@ gog calendar calendars
 gog calendar acl <calendarId>         # List access control rules
 gog calendar colors                   # List available event/calendar colors
 gog calendar time --timezone America/New_York
+gog calendar users                    # List workspace users (use email as calendar ID)
 
-# Events
-gog calendar events <calendarId> --from 2025-01-01T00:00:00Z --to 2025-01-08T00:00:00Z --max 50
+# Events (with timezone-aware time flags)
+gog calendar events <calendarId> --today                    # Today's events
+gog calendar events <calendarId> --tomorrow                 # Tomorrow's events
+gog calendar events <calendarId> --week                     # This week (Mon-Sun)
+gog calendar events <calendarId> --days 3                   # Next 3 days
+gog calendar events <calendarId> --from today --to friday   # Relative dates
+gog calendar events <calendarId> --from 2025-01-01T00:00:00Z --to 2025-01-08T00:00:00Z
 gog calendar events --all             # Fetch events from all calendars
 gog calendar event <calendarId> <eventId>
+gog calendar search "meeting" --today
 gog calendar search "meeting" --from 2025-01-01T00:00:00Z --to 2025-01-31T00:00:00Z --max 50
+
+# Team calendars (requires Cloud Identity API for Google Workspace)
+gog calendar team <group-email> --today           # Show team's events for today
+gog calendar team <group-email> --week            # Show team's events for the week
+gog calendar team <group-email> --freebusy        # Show only busy/free blocks (faster)
+gog calendar team <group-email> --query "standup" # Filter by event title
 
 # Create and update
 gog calendar create <calendarId> \
@@ -311,8 +326,7 @@ gog calendar freebusy --calendars "primary,work@example.com" \
   --to 2025-01-16T00:00:00Z
 
 gog calendar conflicts --calendars "primary,work@example.com" \
-  --from 2025-01-15T00:00:00Z \
-  --to 2025-01-22T00:00:00Z
+  --today                             # Today's conflicts
 ```
 
 ### Drive
@@ -442,6 +456,22 @@ gog sheets create "My New Spreadsheet" --sheets "Sheet1,Sheet2"
 ```bash
 # Profile
 gog people me
+```
+
+### Groups (Google Workspace)
+
+```bash
+# List groups you belong to
+gog groups list
+
+# List members of a group
+gog groups members engineering@company.com
+```
+
+Note: Groups commands require the Cloud Identity API and the `cloud-identity.groups.readonly` scope. If you get a permissions error, re-authenticate:
+
+```bash
+gog auth add your@email.com --force-consent
 ```
 
 ### Docs
@@ -724,6 +754,7 @@ MIT
 - [Google People API Documentation](https://developers.google.com/people)
 - [Google Tasks API Documentation](https://developers.google.com/tasks)
 - [Google Sheets API Documentation](https://developers.google.com/sheets)
+- [Cloud Identity API Documentation](https://cloud.google.com/identity/docs/reference/rest)
 
 ## Credits
 

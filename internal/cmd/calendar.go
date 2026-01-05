@@ -31,6 +31,7 @@ type CalendarCmd struct {
 	Search    CalendarSearchCmd    `cmd:"" name:"search" help:"Search events"`
 	Time      CalendarTimeCmd      `cmd:"" name:"time" help:"Show server time"`
 	Users     CalendarUsersCmd     `cmd:"" name:"users" help:"List workspace users (use their email as calendar ID)"`
+	Team      CalendarTeamCmd      `cmd:"" name:"team" help:"Show events for all members of a Google Group"`
 }
 
 type CalendarCalendarsCmd struct {
