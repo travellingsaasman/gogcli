@@ -27,9 +27,11 @@ func SaveSecrets(account, trackingKey, adminKey string) error {
 	if account == "" {
 		return errMissingAccount
 	}
+
 	if trackingKey == "" {
 		return errMissingTrackingKey
 	}
+
 	if adminKey == "" {
 		return errMissingAdminKey
 	}
@@ -69,19 +71,21 @@ func readSecretWithFallback(primary, legacy string) (string, error) {
 	if err == nil {
 		return string(val), nil
 	}
+
 	if !errors.Is(err, keyring.ErrKeyNotFound) {
-		return "", err
+		return "", fmt.Errorf("read secret: %w", err)
 	}
 
 	legacyVal, legacyErr := secrets.GetSecret(legacy)
 	if legacyErr == nil {
 		return string(legacyVal), nil
 	}
+
 	if errors.Is(legacyErr, keyring.ErrKeyNotFound) {
 		return "", nil
 	}
 
-	return "", legacyErr
+	return "", fmt.Errorf("read legacy secret: %w", legacyErr)
 }
 
 func scopedSecretKey(account, suffix string) string {

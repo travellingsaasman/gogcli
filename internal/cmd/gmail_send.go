@@ -32,6 +32,32 @@ type GmailSendCmd struct {
 	TrackSplit       bool     `name:"track-split" help:"Send tracked messages separately per recipient"`
 }
 
+type sendBatch struct {
+	To                []string
+	Cc                []string
+	Bcc               []string
+	TrackingRecipient string
+}
+
+type sendResult struct {
+	To         string
+	MessageID  string
+	ThreadID   string
+	TrackingID string
+}
+
+type sendMessageOptions struct {
+	FromAddr    string
+	ReplyTo     string
+	Subject     string
+	Body        string
+	BodyHTML    string
+	ReplyInfo   replyInfo
+	Attachments []mailAttachment
+	Track       bool
+	TrackingCfg *tracking.Config
+}
+
 func (c *GmailSendCmd) Run(ctx context.Context, flags *RootFlags) error {
 	u := ui.FromContext(ctx)
 	account, err := requireAccount(flags)
@@ -124,75 +150,97 @@ func (c *GmailSendCmd) Run(ctx context.Context, flags *RootFlags) error {
 		atts = append(atts, mailAttachment{Path: p})
 	}
 
-	// Handle tracking
-	var trackingCfg *tracking.Config
-	if c.Track {
-		totalRecipients := len(toRecipients) + len(ccRecipients) + len(bccRecipients)
-		if totalRecipients != 1 && !c.TrackSplit {
-			return usage("--track requires exactly 1 recipient (no cc/bcc); use --track-split for per-recipient sends")
-		}
-
-		trackingCfg, err = tracking.LoadConfig(account)
-		if err != nil {
-			return fmt.Errorf("load tracking config: %w", err)
-		}
-		if !trackingCfg.IsConfigured() {
-			return fmt.Errorf("tracking not configured; run 'gog gmail track setup' first")
-		}
-		if strings.TrimSpace(c.BodyHTML) == "" {
-			return fmt.Errorf("--track requires --body-html (pixel must be in HTML)")
-		}
+	trackingCfg, err := c.resolveTrackingConfig(account, toRecipients, ccRecipients, bccRecipients)
+	if err != nil {
+		return err
 	}
 
-	type sendBatch struct {
-		To                []string
-		Cc                []string
-		Bcc               []string
-		TrackingRecipient string
+	batches := buildSendBatches(toRecipients, ccRecipients, bccRecipients, c.Track, c.TrackSplit)
+	results, err := sendGmailBatches(ctx, svc, sendMessageOptions{
+		FromAddr:    fromAddr,
+		ReplyTo:     c.ReplyTo,
+		Subject:     c.Subject,
+		Body:        c.Body,
+		BodyHTML:    c.BodyHTML,
+		ReplyInfo:   replyInfo,
+		Attachments: atts,
+		Track:       c.Track,
+		TrackingCfg: trackingCfg,
+	}, batches)
+	if err != nil {
+		return err
 	}
 
-	batches := make([]sendBatch, 0, 1)
-	if c.Track && c.TrackSplit && (len(toRecipients)+len(ccRecipients)+len(bccRecipients) > 1) {
+	return writeSendResults(ctx, u, fromAddr, results)
+}
+
+func (c *GmailSendCmd) resolveTrackingConfig(account string, toRecipients, ccRecipients, bccRecipients []string) (*tracking.Config, error) {
+	if !c.Track {
+		return nil, nil
+	}
+
+	totalRecipients := len(toRecipients) + len(ccRecipients) + len(bccRecipients)
+	if totalRecipients != 1 && !c.TrackSplit {
+		return nil, usage("--track requires exactly 1 recipient (no cc/bcc); use --track-split for per-recipient sends")
+	}
+
+	if strings.TrimSpace(c.BodyHTML) == "" {
+		return nil, fmt.Errorf("--track requires --body-html (pixel must be in HTML)")
+	}
+
+	trackingCfg, err := tracking.LoadConfig(account)
+	if err != nil {
+		return nil, fmt.Errorf("load tracking config: %w", err)
+	}
+	if !trackingCfg.IsConfigured() {
+		return nil, fmt.Errorf("tracking not configured; run 'gog gmail track setup' first")
+	}
+
+	return trackingCfg, nil
+}
+
+func buildSendBatches(toRecipients, ccRecipients, bccRecipients []string, track, trackSplit bool) []sendBatch {
+	totalRecipients := len(toRecipients) + len(ccRecipients) + len(bccRecipients)
+	if track && trackSplit && totalRecipients > 1 {
 		recipients := append(append(append([]string{}, toRecipients...), ccRecipients...), bccRecipients...)
 		recipients = deduplicateAddresses(recipients)
+
+		batches := make([]sendBatch, 0, len(recipients))
 		for _, recipient := range recipients {
 			batches = append(batches, sendBatch{
 				To:                []string{recipient},
 				TrackingRecipient: recipient,
 			})
 		}
-	} else {
-		trackingRecipient := ""
-		if len(toRecipients) > 0 {
-			trackingRecipient = toRecipients[0]
-		}
-		batches = append(batches, sendBatch{
-			To:                toRecipients,
-			Cc:                ccRecipients,
-			Bcc:               bccRecipients,
-			TrackingRecipient: trackingRecipient,
-		})
+
+		return batches
 	}
 
-	type sendResult struct {
-		To         string
-		MessageID  string
-		ThreadID   string
-		TrackingID string
+	trackingRecipient := ""
+	if len(toRecipients) > 0 {
+		trackingRecipient = toRecipients[0]
 	}
+	return []sendBatch{{
+		To:                toRecipients,
+		Cc:                ccRecipients,
+		Bcc:               bccRecipients,
+		TrackingRecipient: trackingRecipient,
+	}}
+}
 
+func sendGmailBatches(ctx context.Context, svc *gmail.Service, opts sendMessageOptions, batches []sendBatch) ([]sendResult, error) {
 	results := make([]sendResult, 0, len(batches))
 	for _, batch := range batches {
-		htmlBody := c.BodyHTML
+		htmlBody := opts.BodyHTML
 		trackingID := ""
-		if c.Track {
+		if opts.Track {
 			recipient := strings.TrimSpace(batch.TrackingRecipient)
 			if recipient == "" && len(batch.To) > 0 {
 				recipient = strings.TrimSpace(batch.To[0])
 			}
-			pixelURL, blob, pixelErr := tracking.GeneratePixelURL(trackingCfg, recipient, c.Subject)
+			pixelURL, blob, pixelErr := tracking.GeneratePixelURL(opts.TrackingCfg, recipient, opts.Subject)
 			if pixelErr != nil {
-				return fmt.Errorf("generate tracking pixel: %w", pixelErr)
+				return nil, fmt.Errorf("generate tracking pixel: %w", pixelErr)
 			}
 			trackingID = blob
 
@@ -202,32 +250,32 @@ func (c *GmailSendCmd) Run(ctx context.Context, flags *RootFlags) error {
 		}
 
 		raw, err := buildRFC822(mailOptions{
-			From:        fromAddr,
+			From:        opts.FromAddr,
 			To:          batch.To,
 			Cc:          batch.Cc,
 			Bcc:         batch.Bcc,
-			ReplyTo:     c.ReplyTo,
-			Subject:     c.Subject,
-			Body:        c.Body,
+			ReplyTo:     opts.ReplyTo,
+			Subject:     opts.Subject,
+			Body:        opts.Body,
 			BodyHTML:    htmlBody,
-			InReplyTo:   replyInfo.InReplyTo,
-			References:  replyInfo.References,
-			Attachments: atts,
+			InReplyTo:   opts.ReplyInfo.InReplyTo,
+			References:  opts.ReplyInfo.References,
+			Attachments: opts.Attachments,
 		})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		msg := &gmail.Message{
 			Raw: base64.RawURLEncoding.EncodeToString(raw),
 		}
-		if replyInfo.ThreadID != "" {
-			msg.ThreadId = replyInfo.ThreadID
+		if opts.ReplyInfo.ThreadID != "" {
+			msg.ThreadId = opts.ReplyInfo.ThreadID
 		}
 
 		sent, err := svc.Users.Messages.Send("me", msg).Context(ctx).Do()
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		resultRecipient := ""
@@ -244,6 +292,10 @@ func (c *GmailSendCmd) Run(ctx context.Context, flags *RootFlags) error {
 		})
 	}
 
+	return results, nil
+}
+
+func writeSendResults(ctx context.Context, u *ui.UI, fromAddr string, results []sendResult) error {
 	if outfmt.IsJSON(ctx) {
 		if len(results) == 1 {
 			resp := map[string]any{

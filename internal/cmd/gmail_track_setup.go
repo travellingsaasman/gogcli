@@ -213,16 +213,16 @@ func deployTrackingWorker(ctx context.Context, u *ui.UI, workerDir, workerName, 
 		return "", err
 	}
 
-	if err := runWranglerCommand(ctx, workerDir, nil, "d1", "execute", dbName, "--file", "schema.sql", "--remote"); err != nil {
-		return "", err
+	if runErr := runWranglerCommand(ctx, workerDir, nil, "d1", "execute", dbName, "--file", "schema.sql", "--remote"); runErr != nil {
+		return "", runErr
 	}
 
-	if err := runWranglerCommand(ctx, workerDir, strings.NewReader(trackingKey+"\n"), "secret", "put", "TRACKING_KEY", "--name", workerName); err != nil {
-		return "", err
+	if runErr := runWranglerCommand(ctx, workerDir, strings.NewReader(trackingKey+"\n"), "secret", "put", "TRACKING_KEY", "--name", workerName); runErr != nil {
+		return "", runErr
 	}
 
-	if err := runWranglerCommand(ctx, workerDir, strings.NewReader(adminKey+"\n"), "secret", "put", "ADMIN_KEY", "--name", workerName); err != nil {
-		return "", err
+	if runErr := runWranglerCommand(ctx, workerDir, strings.NewReader(adminKey+"\n"), "secret", "put", "ADMIN_KEY", "--name", workerName); runErr != nil {
+		return "", runErr
 	}
 
 	configPath, err := writeWranglerConfig(workerDir, workerName, dbName, dbID)
@@ -277,6 +277,7 @@ func parseDatabaseID(out string) string {
 
 func writeWranglerConfig(workerDir, workerName, dbName, dbID string) (string, error) {
 	templatePath := filepath.Join(workerDir, "wrangler.toml")
+	// #nosec G304 -- path is derived from the configured worker dir
 	data, err := os.ReadFile(templatePath)
 	if err != nil {
 		return "", fmt.Errorf("read wrangler.toml: %w", err)
@@ -305,15 +306,15 @@ func replaceTomlString(content, key, value string) string {
 	return re.ReplaceAllString(content, fmt.Sprintf(`%s = \"%s\"`, key, value))
 }
 
-func runWranglerCommand(ctx context.Context, dir string, input io.Reader, args ...string) error {
-	_, err := runWranglerCommandOutput(ctx, dir, input, args...)
+func runWranglerCommand(ctx context.Context, dir string, stdin io.Reader, args ...string) error {
+	_, err := runWranglerCommandOutput(ctx, dir, stdin, args...)
 	return err
 }
 
-func runWranglerCommandOutput(ctx context.Context, dir string, input io.Reader, args ...string) (string, error) {
+func runWranglerCommandOutput(ctx context.Context, dir string, stdin io.Reader, args ...string) (string, error) {
 	cmd := exec.CommandContext(ctx, "wrangler", args...)
 	cmd.Dir = dir
-	cmd.Stdin = input
+	cmd.Stdin = stdin
 	cmd.Env = append(os.Environ(), "WRANGLER_SEND_METRICS=false")
 	out, err := cmd.CombinedOutput()
 	if err != nil {

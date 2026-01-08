@@ -130,9 +130,10 @@ func SaveConfig(account string, cfg *Config) error {
 
 	fileCfg := fileConfig{Accounts: map[string]*Config{}}
 	if data, ok, readErr := readConfigBytes(path); readErr == nil && ok {
-		if err := json.Unmarshal(data, &fileCfg); err != nil {
-			return fmt.Errorf("parse tracking config: %w", err)
+		if unmarshalErr := json.Unmarshal(data, &fileCfg); unmarshalErr != nil {
+			return fmt.Errorf("parse tracking config: %w", unmarshalErr)
 		}
+
 		if fileCfg.Accounts == nil {
 			fileCfg.Accounts = map[string]*Config{}
 		}
