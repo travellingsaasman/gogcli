@@ -17,6 +17,8 @@
 - CLI: enable shell completions and stop flag suggestions after `--`. (#77) — thanks @salmonumbrella.
 - Timezone: honor `--timezone local` and allow env/config defaults for Gmail + Calendar output. (#79) — thanks @salmonumbrella.
 - Calendar/Tasks: propose-time decline sends updates and repeat-until keeps due time. (#75) — thanks @salmonumbrella.
+- Tasks: normalize due dates to RFC3339 so date-only inputs work reliably (including repeat).
+- Groups: friendlier Cloud Identity errors for consumer accounts and missing scopes.
 
 ### Build
 
