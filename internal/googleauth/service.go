@@ -10,18 +10,18 @@ import (
 type Service string
 
 const (
-	ServiceGmail    Service = "gmail"
-	ServiceCalendar Service = "calendar"
-	ServiceChat     Service = "chat"
+	ServiceGmail     Service = "gmail"
+	ServiceCalendar  Service = "calendar"
+	ServiceChat      Service = "chat"
 	ServiceClassroom Service = "classroom"
-	ServiceDrive    Service = "drive"
-	ServiceDocs     Service = "docs"
-	ServiceContacts Service = "contacts"
-	ServiceTasks    Service = "tasks"
-	ServicePeople   Service = "people"
-	ServiceSheets   Service = "sheets"
-	ServiceGroups   Service = "groups"
-	ServiceKeep     Service = "keep"
+	ServiceDrive     Service = "drive"
+	ServiceDocs      Service = "docs"
+	ServiceContacts  Service = "contacts"
+	ServiceTasks     Service = "tasks"
+	ServicePeople    Service = "people"
+	ServiceSheets    Service = "sheets"
+	ServiceGroups    Service = "groups"
+	ServiceKeep      Service = "keep"
 )
 
 const (
