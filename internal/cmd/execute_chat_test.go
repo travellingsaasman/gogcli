@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -12,6 +13,8 @@ import (
 	"google.golang.org/api/chat/v1"
 	"google.golang.org/api/option"
 )
+
+var errUnexpectedChatServiceCall = errors.New("unexpected chat service call")
 
 func TestExecute_ChatSpacesList_Text(t *testing.T) {
 	origNew := newChatService
@@ -63,7 +66,7 @@ func TestExecute_ChatSpacesList_ConsumerBlocked(t *testing.T) {
 	t.Cleanup(func() { newChatService = origNew })
 	newChatService = func(context.Context, string) (*chat.Service, error) {
 		t.Fatalf("unexpected chat service call")
-		return nil, nil
+		return nil, errUnexpectedChatServiceCall
 	}
 
 	err := Execute([]string{"--account", "user@gmail.com", "chat", "spaces", "list"})

@@ -27,7 +27,7 @@ func (c *ChatThreadsListCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	if err := requireWorkspaceAccount(account); err != nil {
+	if err = requireWorkspaceAccount(account); err != nil {
 		return err
 	}
 

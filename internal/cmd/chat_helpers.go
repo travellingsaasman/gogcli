@@ -51,9 +51,7 @@ func normalizeThread(space, resource string) (string, error) {
 		}
 		return thread, nil
 	}
-	if strings.HasPrefix(thread, "threads/") {
-		thread = strings.TrimPrefix(thread, "threads/")
-	}
+	thread = strings.TrimPrefix(thread, "threads/")
 	if strings.Contains(thread, "/") {
 		return "", fmt.Errorf("invalid thread id %q", thread)
 	}

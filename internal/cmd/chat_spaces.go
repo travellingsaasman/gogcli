@@ -29,7 +29,7 @@ func (c *ChatSpacesListCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	if err := requireWorkspaceAccount(account); err != nil {
+	if err = requireWorkspaceAccount(account); err != nil {
 		return err
 	}
 
@@ -106,7 +106,7 @@ func (c *ChatSpacesFindCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	if err := requireWorkspaceAccount(account); err != nil {
+	if err = requireWorkspaceAccount(account); err != nil {
 		return err
 	}
 
@@ -199,7 +199,7 @@ func (c *ChatSpacesCreateCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	if err := requireWorkspaceAccount(account); err != nil {
+	if err = requireWorkspaceAccount(account); err != nil {
 		return err
 	}
 

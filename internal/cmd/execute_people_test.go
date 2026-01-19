@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -11,6 +12,8 @@ import (
 	"google.golang.org/api/option"
 	"google.golang.org/api/people/v1"
 )
+
+var errUnexpectedPeopleServiceCall = errors.New("unexpected people directory service call")
 
 func TestExecute_PeopleGet_Text(t *testing.T) {
 	origNew := newPeopleDirectoryService
@@ -135,7 +138,7 @@ func TestExecute_PeopleGet_Me_UsesContacts(t *testing.T) {
 	newPeopleContactsService = func(context.Context, string) (*people.Service, error) { return svc, nil }
 	newPeopleDirectoryService = func(context.Context, string) (*people.Service, error) {
 		t.Fatalf("unexpected directory service call")
-		return nil, nil
+		return nil, errUnexpectedPeopleServiceCall
 	}
 
 	out := captureStdout(t, func() {

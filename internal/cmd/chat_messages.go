@@ -32,7 +32,7 @@ func (c *ChatMessagesListCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	if err := requireWorkspaceAccount(account); err != nil {
+	if err = requireWorkspaceAccount(account); err != nil {
 		return err
 	}
 
@@ -49,9 +49,9 @@ func (c *ChatMessagesListCmd) Run(ctx context.Context, flags *RootFlags) error {
 	filters := make([]string, 0, 2)
 	thread := strings.TrimSpace(c.Thread)
 	if thread != "" {
-		threadName, err := normalizeThread(space, thread)
-		if err != nil {
-			return usage(fmt.Sprintf("invalid thread: %v", err))
+		threadName, threadErr := normalizeThread(space, thread)
+		if threadErr != nil {
+			return usage(fmt.Sprintf("invalid thread: %v", threadErr))
 		}
 		filters = append(filters, fmt.Sprintf("thread.name = \"%s\"", threadName))
 	}
@@ -143,7 +143,7 @@ func (c *ChatMessagesSendCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	if err := requireWorkspaceAccount(account); err != nil {
+	if err = requireWorkspaceAccount(account); err != nil {
 		return err
 	}
 
@@ -165,9 +165,9 @@ func (c *ChatMessagesSendCmd) Run(ctx context.Context, flags *RootFlags) error {
 	message := &chat.Message{Text: text}
 	thread := strings.TrimSpace(c.Thread)
 	if thread != "" {
-		threadName, err := normalizeThread(space, thread)
-		if err != nil {
-			return usage(fmt.Sprintf("invalid thread: %v", err))
+		threadName, threadErr := normalizeThread(space, thread)
+		if threadErr != nil {
+			return usage(fmt.Sprintf("invalid thread: %v", threadErr))
 		}
 		message.Thread = &chat.Thread{Name: threadName}
 	}

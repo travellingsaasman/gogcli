@@ -29,7 +29,7 @@ func (c *ChatDMSendCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	if err := requireWorkspaceAccount(account); err != nil {
+	if err = requireWorkspaceAccount(account); err != nil {
 		return err
 	}
 
@@ -59,9 +59,9 @@ func (c *ChatDMSendCmd) Run(ctx context.Context, flags *RootFlags) error {
 	message := &chat.Message{Text: text}
 	thread := strings.TrimSpace(c.Thread)
 	if thread != "" {
-		threadName, err := normalizeThread(space.Name, thread)
-		if err != nil {
-			return usage(fmt.Sprintf("invalid thread: %v", err))
+		threadName, threadErr := normalizeThread(space.Name, thread)
+		if threadErr != nil {
+			return usage(fmt.Sprintf("invalid thread: %v", threadErr))
 		}
 		message.Thread = &chat.Thread{Name: threadName}
 	}
@@ -103,7 +103,7 @@ func (c *ChatDMSpaceCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	if err := requireWorkspaceAccount(account); err != nil {
+	if err = requireWorkspaceAccount(account); err != nil {
 		return err
 	}
 
